@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MAFIA — Party Game</title>
+  <style>
+    :root {
+      --bg: #07060a;
+      --panel: #0d0c12;
+      --text: #ececf1;
+      --muted: #b9b9c3;
+      --red: #cc0f2b;
+      --green: #2ecc71;
+      --disabled: 0.5;
+      --card: #13121a;
+      --border: #201f2b;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% -10%, #120f18 0%, var(--bg) 50%);
+      color: var(--text);
+    }
+    a { color: var(--text); }
+
+
+
+
+
+
+
+
+    /* Layout */
+    .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--card));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+
+
+
+
+
+
+
+    h1, h2, h3 { margin: 0 0 12px; }
+    h1 { font-size: 28px; letter-spacing: 1px; }
+    h2 { font-size: 22px; }
+
+
+
+
+
+
+
+
+    .title { font-weight: 800; color: var(--text); }
+    .subtitle { color: var(--muted); font-size: 14px; }
+
+
+
+
+
+
+
+
+    /* Controls */
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .col { display: flex; flex-direction: column; gap: 8px; }
+    .grow { flex: 1 1 auto; }
+
+
+
+
+
+
+
+
+    .btn {
+      appearance: none; border: none; cursor: pointer;
+      border-radius: 14px; padding: 12px 16px; font-weight: 700;
+      background: #1a1822; color: var(--text); border: 1px solid var(--border);
+      transition: transform .06s ease, background .2s ease, opacity .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); background: #23212e; }
+    .btn:active { transform: translateY(0px) scale(0.98); }
+    .btn.red { background: var(--red); color: white; border-color: #9b0b20; }
+    .btn.red:hover { background: #b30d26; }
+    .btn.ghost { background: transparent; border-color: #3a3946; }
+    .btn[disabled] { opacity: var(--disabled); pointer-events: none; }
+
+
+
+
+
+
+
+
+    .counter { display: inline-flex; gap: 8px; align-items: center; }
+    .counter .pill { min-width: 56px; text-align: center; padding: 8px 12px; background: #151421; border: 1px solid var(--border); border-radius: 12px; font-weight: 800; color: var(--text); }
+
+
+
+
+
+
+
+
+    input, select { width: 100%; background: #13111a; color: var(--text); padding: 12px; border-radius: 12px; border: 1px solid var(--border); outline: none; }
+    input::placeholder { color: #87879b; }
+    label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #a6a6b6; }
+
+
+
+
+
+
+
+
+    .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+
+
+
+
+
+
+
+
+    .player-btn { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: #161522; color: var(--text); cursor: pointer; text-align: left; }
+    .player-btn.selected { outline: 2px solid var(--red); background: #2a1820; }
+    .player-btn.dead { opacity: .55; text-decoration: line-through; }
+    .player-btn[disabled] { opacity: .5; pointer-events: none; }
+
+
+
+
+
+
+
+
+    .muted { color: var(--muted); }
+
+
+
+
+
+
+
+
+    .spacer { height: 12px; }
+
+
+
+
+
+
+
+
+    .footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+
+
+
+
+
+
+
+
+    .hidden { display: none !important; }
+
+
+
+
+
+
+
+
+    .scroll { max-height: 280px; overflow: auto; padding-right: 4px; }
+
+
+
+
+
+
+
+
+    /* Big red letters */
+    .big-red { color: var(--red); font-weight: 900; font-size: 36px; letter-spacing: 1px; text-align: center; }
+
+
+
+
+
+
+
+
+    /* Fullscreen overlays */
+    .overlay, .blackout {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); z-index: 50;
+      padding: 24px;
+    }
+    .overlay .modal { background: #141320; border: 1px solid var(--border); border-radius: 18px; padding: 18px; width: min(520px, 92vw); }
+
+
+
+
+
+
+
+
+    .blackout { background: #000; }
+    .blackout .msg { color: #000; } /* keep pure black screen */
+
+
+
+
+
+
+
+
+    /* Game Over list */
+    .result-row { display: grid; grid-template-columns: 1fr 140px 100px; gap: 8px; padding: 8px 0; border-bottom: 1px dashed #2c2b36; align-items: center; }
+    .alive { color: var(--green); }
+    .dead { color: var(--red); text-decoration: line-through; }
+
+
+
+
+
+
+
+
+    .chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: #141320; border-radius: 999px; padding: 6px 10px; font-size: 12px; }
+
+
+
+
+
+
+
+
+    .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- SETUP SCREEN -->
+    <section id="setup" class="card">
+      <h1 class="title">MAFIA — Setup</h1>
+      <div class="spacer"></div>
+      <div class="row" style="align-items:flex-end; gap:16px;">
+        <div class="col">
+          <label>Player Count</label>
+          <div class="counter">
+            <button id="decPlayers" class="btn ghost" aria-label="Decrease players">−</button>
+            <div id="playerCount" class="pill">6</div>
+            <button id="incPlayers" class="btn ghost" aria-label="Increase players">+</button>
+          </div>
+        </div>
+        <div class="col grow">
+          <label>Subtle Info</label>
+          <div id="setupInfo" class="subtitle">Total roles 0 / players 6</div>
+        </div>
+        <div class="col">
+          <button id="startGame" class="btn red" disabled>Start Game</button>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+      <div class="spacer"></div>
+      <div class="row" style="align-items:flex-start;">
+        <div class="col grow">
+          <label>Player Names</label>
+          <div id="nameFields" class="scroll"></div>
+        </div>
+        <div class="col" style="min-width:260px;">
+          <label>Roles</label>
+          <div class="row">
+            <div class="col" style="min-width:120px;">
+              <label>Mafia</label>
+              <input type="number" id="roleMafia" min="1" value="2" />
+            </div>
+            <div class="col" style="min-width:120px;">
+              <label>Doctor</label>
+              <input type="number" id="roleDoctor" min="0" value="1" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col" style="min-width:120px;">
+              <label>Cop</label>
+              <input type="number" id="roleCop" min="0" value="1" />
+            </div>
+            <div class="col" style="min-width:120px;">
+              <label>Citizens</label>
+              <input type="number" id="roleCitizen" min="0" value="0" />
+            </div>
+          </div>
+          <div class="subtitle" id="roleWarning"></div>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+    <!-- PASS DEVICE / ROLE REVEAL -->
+    <section id="reveal" class="card hidden center">
+      <h1 class="title">Pass device to:</h1>
+      <div id="revealPlayer" style="font-size:28px; color: var(--red); font-weight:900;">—</div>
+      <div class="spacer"></div>
+      <button id="btnRevealRole" class="btn red">Reveal Your Role</button>
+      <div class="spacer"></div>
+      <div id="roleText" class="big-red hidden">—</div>
+      <div class="spacer"></div>
+      <button id="btnNextReveal" class="btn hidden">Next Player</button>
+      <button id="btnContinueGame" class="btn red hidden">Continue</button>
+    </section>
+
+
+
+
+
+
+
+
+    <!-- NIGHT PHASE -->
+    <section id="night" class="card hidden">
+      <h1 id="nightTitle" class="title">Night</h1>
+      <div class="subtitle" id="nightSub">Select a player and confirm.</div>
+      <div class="spacer"></div>
+      <div class="scroll">
+        <div id="nightPlayers" class="list"></div>
+      </div>
+      <div class="footer">
+        <button id="btnConfirmNight" class="btn red" disabled>Confirm</button>
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+    <!-- MORNING -->
+    <section id="morning" class="card hidden">
+      <h1 class="title">Morning</h1>
+      <div id="morningSummary" class="subtitle"></div>
+      <div class="footer">
+        <button id="btnStartDiscussion" class="btn red">Start Discussion</button>
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+    <!-- DISCUSSION -->
+    <section id="discussion" class="card hidden">
+      <h1 class="title">Discussion</h1>
+      <div class="row" style="align-items:center; justify-content:space-between;">
+        <div class="big-red" id="timer">02:30</div>
+        <div class="row">
+          <button id="btnReduce10" class="btn ghost">Reduce 10 Seconds</button>
+          <button id="btnSkipToVoting" class="btn red">Skip to Voting</button>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+    <!-- VOTING -->
+    <section id="voting" class="card hidden">
+      <h1 class="title">Voting</h1>
+      <div id="voterTurn" class="subtitle">It's someone's turn to vote</div>
+      <div class="spacer"></div>
+      <div class="scroll">
+        <div id="voteList" class="list"></div>
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+    <!-- GAME OVER →
+    <!-- WAKE UP SCREEN -->
+    <section id="wake" class="card hidden center">
+      <h1 class="title">Morning</h1>
+      <div class="spacer"></div>
+      <div class="big-red">Everyone wakes up...</div>
+    </section>
+    <section id="gameover" class="card hidden">
+      <h1 class="title">GAME OVER</h1>
+      <h2 id="winner" class="big-red" style="font-size:24px;">—</h2>
+      <div class="spacer"></div>
+      <h3>Results</h3>
+      <div id="results" class="scroll"></div>
+      <div class="spacer"></div>
+      <h3>Round History</h3>
+      <div id="history" class="scroll"></div>
+      <div class="footer">
+        <button id="btnPlayAgain" class="btn">Play Again</button>
+        <button id="btnReturnHome" class="btn ghost">Return to Home</button>
+      </div>
+    </section>
+  </div>
+
+
+
+
+
+
+
+
+  <!-- Overlays -->
+  <div id="copOverlay" class="overlay">
+    <div class="modal">
+      <h2 class="title">Investigation Result</h2>
+      <div id="copResult" class="big-red" style="font-size:28px;">—</div>
+    </div>
+  </div>
+  <div id="voteOverlay" class="overlay">
+  <div class="modal center">
+    <div id="voteOverlayText" class="big-red" style="font-size:28px;">
+      —
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+  <div id="blackout" class="blackout"><div class="msg">&nbsp;</div></div>
+
+
+
+
+
+
+
+
+
+<script>
+  // =============================================================
+  // Game state
+  // =============================================================
+  const state = {
+    players: [], // {name, role, alive, revealed}
+    round: 0,
+    history: [], // {round, nightKill, healed, votedOut}
+    roles: { mafia: 2, doctor: 1, cop: 1, citizen: 0 },
+    order: ["mafia", "doctor", "cop"], // fixed order, no randomness
+    phase: "setup",
+    nightSelections: { mafia: null, doctor: null, cop: null },
+    discussionSeconds: 150, // 2.5 minutes
+    winner: null,
+  };
+
+  // =============================================================
+  // Utils
+  // =============================================================
+  const $ = (id) => document.getElementById(id);
+  const show = (id) => $(id).classList.remove('hidden');
+  const hide = (id) => $(id).classList.add('hidden');
+  const setText = (id, t) => $(id).textContent = t;
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  function showVoteOverlay(text) {
+  $('voteOverlayText').textContent = text;
+  $('voteOverlay').style.display = 'flex';
+}
+
+function hideVoteOverlay() {
+  $('voteOverlay').style.display = 'none';
+}
+
+  const blackout = async (ms=1200) => { $('blackout').style.display='flex'; await sleep(ms); $('blackout').style.display='none'; };
+
+  // =============================================================
+  // Setup Screen
+  // =============================================================
+  const playerCountEl = $('playerCount');
+  const nameFieldsEl = $('nameFields');
+  const roleInputs = { mafia: $('roleMafia'), doctor: $('roleDoctor'), cop: $('roleCop'), citizen: $('roleCitizen') };
+  let playerCount = 6;
+
+  function renderNameFields() {
+    nameFieldsEl.innerHTML = '';
+    for (let i=0;i<playerCount;i++) {
+      const wrap = document.createElement('div');
+      wrap.style.marginBottom = '8px';
+      const inp = document.createElement('input');
+      inp.placeholder = `Player ${i+1}`;
+      inp.value = state.players[i]?.name || '';
+      inp.addEventListener('input', validateSetup);
+      wrap.appendChild(inp);
+      nameFieldsEl.appendChild(wrap);
+    }
+    nameFieldsEl.classList.add('scroll');
+  }
+
+  function validateSetup() {
+    // read names
+    const inputs = nameFieldsEl.querySelectorAll('input');
+    state.players = Array.from(inputs).map(inp => ({ name: inp.value.trim(), role: null, alive: true, revealed: false }));
+
+    // read roles
+    state.roles.mafia = clamp(parseInt(roleInputs.mafia.value||0), 0, 10);
+    state.roles.doctor = clamp(parseInt(roleInputs.doctor.value||0), 0, 10);
+    state.roles.cop = clamp(parseInt(roleInputs.cop.value||0), 0, 10);
+    state.roles.citizen = clamp(parseInt(roleInputs.citizen.value||0), 0, 99);
+
+    const totalPlayers = playerCount;
+    const totalAssigned = state.roles.mafia + state.roles.doctor + state.roles.cop + state.roles.citizen;
+
+    // Subtle info
+    setText('setupInfo', `Total roles ${totalAssigned} / players ${totalPlayers}`);
+
+    const warn = $('roleWarning');
+    let msg = '';
+    if (totalAssigned > totalPlayers) msg = 'Total roles cannot exceed number of players.';
+    if (state.roles.mafia === 0) msg = 'At least 1 Mafia is required.';
+    if (state.players.filter(p => p.name).length < totalPlayers) msg = 'Please enter all player names.';
+    warn.textContent = msg;
+
+    $('startGame').disabled = !!msg;
+  }
+
+  function clamp(n, min, max) { if (isNaN(n)) return min; return Math.max(min, Math.min(max, n)); }
+
+  $('incPlayers').onclick = () => { playerCount = Math.min(20, playerCount+1); playerCountEl.textContent = playerCount; renderNameFields(); validateSetup(); };
+  $('decPlayers').onclick = () => { playerCount = Math.max(3, playerCount-1); playerCountEl.textContent = playerCount; renderNameFields(); validateSetup(); };
+
+  Object.values(roleInputs).forEach(inp => inp.addEventListener('input', validateSetup));
+  renderNameFields();
+  validateSetup();
+
+  $('startGame').onclick = () => {
+    // finalize players (ensure exact count)
+    state.players = state.players.slice(0, playerCount);
+    // Fill extra citizens automatically if not specified
+    const totalAssigned = state.roles.mafia + state.roles.doctor + state.roles.cop + state.roles.citizen;
+    if (totalAssigned < playerCount) {
+      state.roles.citizen += (playerCount - totalAssigned);
+    }
+    // Assign roles (deterministic order for reveal but random distribution among players)
+    const pool = [];
+    pool.push(...Array(state.roles.mafia).fill('Mafia'));
+    pool.push(...Array(state.roles.doctor).fill('Doctor'));
+    pool.push(...Array(state.roles.cop).fill('Cop'));
+    pool.push(...Array(state.roles.citizen).fill('Citizen'));
+    shuffle(pool);
+    state.players.forEach((p,i)=>{ p.role = pool[i]; p.alive = true; p.revealed = false; });
+    state.round = 1;
+    state.history = [];
+    state.phase = 'reveal';
+    toRevealPhase();
+  };
+
+  function shuffle(arr){ for (let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+  // =============================================================
+  // Reveal Phase
+  // =============================================================
+  let revealIndex = 0;
+  function toRevealPhase(){
+    switchSection('reveal');
+    revealIndex = 0;
+    setText('revealPlayer', state.players[0].name);
+    hide('roleText');
+    hide('btnNextReveal');
+    hide('btnContinueGame');
+    show('btnRevealRole');
+  }
+
+  $('btnRevealRole').onclick = () => {
+    const p = state.players[revealIndex];
+    const txt = `You are: ${p.role.toUpperCase()}`;
+    const roleText = $('roleText');
+    roleText.textContent = txt;
+    roleText.classList.remove('hidden');
+    hide('btnRevealRole');
+    show('btnNextReveal');
+  };
+
+  $('btnNextReveal').onclick = () => {
+    revealIndex++;
+    if (revealIndex >= state.players.length){
+      // IMPORTANT: Show "All roles revealed" and HIDE the last role text
+      hide('btnNextReveal');
+      show('btnContinueGame');
+      setText('revealPlayer', 'All roles revealed');
+      hide('roleText'); // hide previous player's role so last role doesn't show
+    } else {
+      setText('revealPlayer', state.players[revealIndex].name);
+      hide('roleText');
+      show('btnRevealRole');
+      hide('btnNextReveal');
+    }
+  };
+
+  $('btnContinueGame').onclick = () => {
+    state.phase = 'night';
+    state.nightSelections = { mafia: null, doctor: null, cop: null };
+    toNightRole('mafia');
+  };
+
+  // =============================================================
+  // Night Phase (fixed order: Mafia -> Doctor -> Cop)
+  // =============================================================
+  let currentNightRole = 'mafia';
+  let selectedPlayerIndex = null;
+function showBlackout() {
+  $('blackout').style.display = 'flex';
+}
+
+function hideBlackout() {
+  $('blackout').style.display = 'none';
+}
+
+  // -----------------------------
+  // Clean Night flow + auto-timeout
+  // -----------------------------
+  async function toNightRole(role){
+    currentNightRole = role;
+
+    // Always ensure the nightPlayers container is freshly built / visible
+    const nightListEl = $('nightPlayers');
+    if (nightListEl) {
+      nightListEl.style.visibility = 'visible';
+      nightListEl.innerHTML = '';
+    }
+
+    // Determine if any alive actor for this role exists
+    const hasAliveActor = state.players.some(p => p.alive && (
+      (role==='mafia' && p.role==='Mafia') ||
+      (role==='doctor' && p.role==='Doctor') ||
+      (role==='cop' && p.role==='Cop')
+    ));
+
+    // If no alive mafia, skip mafia (but DO NOT skip doctor/cop — we still call them to hide who is dead)
+    if (!hasAliveActor && role === 'mafia') {
+      return toNightRole('doctor');
+    }
+
+    // Announce the role wake call (always for doctor/cop, whether alive or not)
+    if (role === 'mafia') {
+      await narrate("Night has come. Everyone, close your eyes.", 1500);
+      await sleep(1200);
+      await narrate("Mafia, wake up and choose your target.", 1200);
+     } 
+    else if (role === 'doctor') {
+      await narrate("Doctor, wake up and choose someone to heal.", 1200);
+
+    } else if (role === 'cop') {
+      await narrate("Cop, wake up and investigate a player.", 1200);
+    }
+
+    // Show night UI for selection
+    switchSection('night');
+    const titleMap = {
+      mafia: 'Mafia, select a player to execute',
+      doctor: 'Doctor, select a player to heal',
+      cop: 'Cop, select a player to investigate'
+    };
+    setText('nightTitle', titleMap[role]);
+    setText('nightSub', role==='cop' ? 'You cannot investigate yourself.' : 'Select a player and confirm.');
+
+    // Render players for selection (alive only)
+    renderNightPlayers(role);
+
+    // Reset selection & confirm
+    selectedPlayerIndex = null;
+    $('btnConfirmNight').disabled = true;
+
+    // Determine first alive acting index for this role (used to disable self for Cop)
+    let actorIdx = -1;
+    if (role==='mafia') actorIdx = state.players.findIndex(pp=>pp.alive && pp.role==='Mafia');
+    if (role==='doctor') actorIdx = state.players.findIndex(pp=>pp.alive && pp.role==='Doctor');
+    if (role==='cop') actorIdx = state.players.findIndex(pp=>pp.alive && pp.role==='Cop');
+
+    // If the role actor does not exist and it is doctor/cop, we still show UI but disable choices
+    // and start a 10-second auto-confirm to preserve secrecy.
+    if (actorIdx === -1 && (role === 'doctor' || role === 'cop')) {
+      // disable all player buttons
+      Array.from(document.querySelectorAll('#nightPlayers .player-btn')).forEach(btn => {
+        btn.disabled = true;
+        btn.classList.remove('selected');
+      });
+
+      setText('nightSub', 'Role call in progress — waiting (10s).');
+
+      // clear any previous timer
+      if (window._nightAutoTimer) clearTimeout(window._nightAutoTimer);
+
+      // set a 10s auto-confirm — this will click the confirm button (which tolerates null selection)
+      window._nightAutoTimer = setTimeout(() => {
+        // enable confirm and trigger it
+        $('btnConfirmNight').disabled = false;
+        $('btnConfirmNight').click();
+        window._nightAutoTimer = null;
+      }, 10000);
+    } else {
+      // If there *is* an actor alive, make sure no auto timer remains
+      if (window._nightAutoTimer) { clearTimeout(window._nightAutoTimer); window._nightAutoTimer = null; }
+    }
+  }
+
+  // -----------------------------
+  // Render list of selectable players for night role
+  // -----------------------------
+  function renderNightPlayers(role){
+    const list = $('nightPlayers');
+    list.innerHTML = '';
+    // show only alive players for night actions
+    const alivePlayers = state.players.filter(p=>p.alive);
+
+    // actorIdx used to disable cop selecting themselves
+    let actorIdx = -1;
+    if (role==='mafia') actorIdx = state.players.findIndex(pp=>pp.alive && pp.role==='Mafia');
+    if (role==='doctor') actorIdx = state.players.findIndex(pp=>pp.alive && pp.role==='Doctor');
+    if (role==='cop') actorIdx = state.players.findIndex(pp=>pp.alive && pp.role==='Cop');
+
+    alivePlayers.forEach((p)=>{
+      const idx = state.players.indexOf(p);
+      const btn = document.createElement('button');
+      btn.className = 'player-btn';
+      btn.innerHTML = `<strong>${p.name}</strong><br><span class="muted">Alive</span>`;
+
+      // ensure enabled by default
+      btn.disabled = false;
+
+      // Cop should not be able to investigate themselves (if acting cop exists)
+      if (role==='cop' && actorIdx !== -1 && idx === actorIdx) {
+        btn.disabled = true;
+      }
+
+      btn.addEventListener('click', () => {
+        // If buttons are globally disabled (e.g., actor dead) this won't trigger
+        Array.from(document.querySelectorAll('#nightPlayers .player-btn')).forEach(el=>el.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedPlayerIndex = idx;
+        $('btnConfirmNight').disabled = false;
+      });
+
+      list.appendChild(btn);
+    });
+  }
+
+  // -----------------------------
+  // Confirm Night action handler (single clean handler)
+  // -----------------------------
+  $('btnConfirmNight').onclick = async () => {
+    // read current selection (may be null if auto-timed or user skipped)
+    const chosenIdx = selectedPlayerIndex; // may be null
+
+    // set the selection only if a choice was made
+    if (chosenIdx != null) {
+      if (currentNightRole==='mafia') state.nightSelections.mafia = chosenIdx;
+      if (currentNightRole==='doctor') state.nightSelections.doctor = chosenIdx;
+      if (currentNightRole==='cop') state.nightSelections.cop = chosenIdx;
+    }
+
+    // clear any auto timer
+    if (window._nightAutoTimer) { clearTimeout(window._nightAutoTimer); window._nightAutoTimer = null; }
+
+// Keep the DOM nodes so the next role rendering won't race with us.
+// Remove any visual selection, disable confirm, and hide the container to prevent peeking.
+const nightListEl = $('nightPlayers');
+if (nightListEl) {
+  Array.from(nightListEl.querySelectorAll('.player-btn')).forEach(b => b.classList.remove('selected'));
+  selectedPlayerIndex = null;
+  $('btnConfirmNight').disabled = true;
+  // hide while we move to the next role (toNightRole will call renderNightPlayers and make it visible)
+  nightListEl.style.visibility = 'hidden';
+}
+
+
+    // standard role feedback (keeps secrecy regardless of alive)
+    if (currentNightRole==='mafia') {
+      
+      await narrate("Mafia have chosen their target.",800);
+      
+      await narrate("Mafia, go back to sleep.",800);
+    } else if (currentNightRole==='doctor') {
+      
+      await narrate("Doctor has made their choice.",800);
+      
+      await narrate("Doctor, go back to sleep.",800);
+    } else if (currentNightRole==='cop') {
+      // If cop investigated somebody show private overlay; otherwise show neutral message
+      const copSel = state.nightSelections.cop;
+      if (copSel == null || !state.players[copSel]) {
+        
+        await narrate("Cop has investigated a player.",800);
+      } else {
+        // show private cop result briefly
+      const target = state.players[copSel];
+      const isMafia = target.role === 'Mafia';
+
+      await blackout(300); // hide previous UI fully
+
+      $('copResult').textContent =
+      `${target.name} is ${isMafia ? 'MAFIA' : 'NOT MAFIA'}`;
+
+      $('copOverlay').style.display = 'flex';
+      await sleep(1800);
+      $('copOverlay').style.display = 'none';
+
+      await narrate("Cop has investigated a player.", 600);
+
+
+      }
+      
+      await narrate("Cop, go back to sleep.",800);
+
+      // proceed to resolve night (kill/heal)
+      await blackout(800);
+      await nightResolve();
+      return;
+    }
+
+    // Blackout between roles to hide selections, then move to next role
+    await blackout(800);
+    if (currentNightRole==='mafia') return toNightRole('doctor');
+    if (currentNightRole==='doctor') return toNightRole('cop');
+  };
+
+  async function nightResolve(){
+    // Determine outcomes
+    const killIdx = state.nightSelections.mafia;
+    const healIdx = state.nightSelections.doctor;
+
+    let died = null;
+    let saved = null;
+    if (killIdx!=null) {
+      if (healIdx!=null && healIdx===killIdx){
+        saved = state.players[healIdx].name;
+      } else {
+        // kill
+        state.players[killIdx].alive = false;
+        died = state.players[killIdx].name;
+      }
+    }
+
+    if (checkWin()) {
+      switchSection('wake');
+      await speak("Everyone wakes up... but the game is over.");
+      setTimeout(() => {
+        toGameOver();
+      }, 3000);
+      return;
+    }
+
+    state.history.push({ round: state.round, nightKill: died, healed: saved, votedOut: null });
+    state.phase = 'morning';
+
+    if (checkWin()) {
+      // Show wake screen for 3 seconds, then game over
+      switchSection('wake');
+      setTimeout(() => {
+        toGameOver();
+      }, 3000);
+      return;
+    }
+
+    // Morning wake-up announcement (EVERY ROUND)
+switchSection('wake');
+await speak("Everyone wakes up...");
+await sleep(2000);
+
+toMorning(died, saved);
+
+  }
+
+  // =============================================================
+  // Morning
+  // =============================================================
+  function toMorning(died, saved){
+    switchSection('morning');
+    let summary = '';
+    if (died) summary += `During the night, ${died} was killed.`;
+    if (!died && (state.nightSelections.mafia!=null)) summary += `During the night, no one died.`;
+    if (saved) summary += ` ${saved} was healed.`;
+    if (!summary) summary = 'A quiet night...';
+    setText('morningSummary', summary);
+  }
+
+  $('btnStartDiscussion').onclick = () => { toDiscussion(); };
+
+  // =============================================================
+  // Discussion
+  // =============================================================
+  let timerId = null;
+  function toDiscussion(){
+    switchSection('discussion');
+    let secs = state.discussionSeconds;
+    updateTimer(secs);
+    clearInterval(timerId);
+    timerId = setInterval(()=>{
+      secs--; if (secs<=0){ clearInterval(timerId); toVoting(); return; }
+      updateTimer(secs);
+    }, 1000);
+    $('btnReduce10').onclick = () => { secs = Math.max(0, secs-10); updateTimer(secs); };
+    $('btnSkipToVoting').onclick = () => { clearInterval(timerId); toVoting(); };
+  }
+  function updateTimer(secs){
+    const m = Math.floor(secs/60).toString().padStart(2,'0');
+    const s = (secs%60).toString().padStart(2,'0');
+    setText('timer', `${m}:${s}`);
+  }
+
+  // =============================================================
+  // Voting
+  // =============================================================
+  let voteOrder = [];
+  let voteIndex = 0;
+  let votes = {}; // targetIdx -> count
+  let voteLocked = false;
+
+  function showVotingResult(text) {
+  const list = $('voteList');
+  list.innerHTML = `
+    <div class="big-red" style="font-size:24px;">
+      ${text}
+    </div>
+  `;
+}
+
+  function toVoting(){
+    switchSection('voting');
+    voteLocked = false;
+    // Alive players vote in turn
+    voteOrder = state.players.map((p,i)=>({p,i})).filter(x=>x.p.alive).map(x=>x.i);
+    voteIndex = 0; votes = {};
+    renderVotingTurn();
+  }
+
+
+  async function renderVotingTurn(){
+  
+    if (voteIndex >= voteOrder.length){
+  if (voteLocked) return;
+  voteLocked = true;
+
+  const tally = Object.entries(votes)
+    .map(([idx,count]) => ({ idx: parseInt(idx), count }));
+
+  $('voterTurn').textContent = '';
+  $('voteList').innerHTML = '';
+
+
+
+
+
+      if (tally.length===0){
+  const last = state.history[state.history.length-1];
+  if (last && last.round===state.round) last.votedOut = null;
+  else state.history.push({round: state.round, nightKill:null, healed:null, votedOut: null});
+
+  showVoteOverlay("No votes were cast.\nNo one was eliminated.");
+  await narrate("No votes were cast. No one was eliminated.", 1500);
+
+  hideVoteOverlay();
+  toNightOrEnd(null);
+  return;
+}
+
+      const max = Math.max(...tally.map(t=>t.count));
+      const top = tally.filter(t=>t.count===max);
+
+      // =============================
+      // TIE HANDLING — NO ELIMINATION
+      // =============================
+      if (top.length > 1){
+  const last = state.history[state.history.length-1];
+  if (last && last.round===state.round) last.votedOut = null;
+  else state.history.push({round: state.round, nightKill:null, healed:null, votedOut: null});
+
+  // 1️⃣ Overlay: decision made
+  showVoteOverlay("The town has made their choice");
+  await narrate("The town has made their choice.", 1200);
+
+  // 2️⃣ Overlay: tie result
+  showVoteOverlay("It's a tie.\nNo one was eliminated.");
+  await narrate("It's a tie. No one was eliminated.", 1500);
+
+  // 3️⃣ Clean transition
+  hideVoteOverlay();
+  toNightOrEnd(null);
+  return;
+}
+
+// Otherwise eliminate the single top-voted player
+const chosen = top[0].idx;
+const eliminated = state.players[chosen];
+eliminated.alive = false;
+
+const last = state.history[state.history.length-1];
+if (last && last.round===state.round) last.votedOut = eliminated.name;
+else state.history.push({round: state.round, nightKill:null, healed:null, votedOut: eliminated.name});
+
+// 1️⃣ Overlay: decision made
+showVoteOverlay("The town has made their choice");
+await narrate("The town has made their choice.", 1200);
+
+// 2️⃣ Overlay: elimination result
+showVoteOverlay(`The town has spoken.\n${eliminated.name} was eliminated.`);
+await narrate(`The town has spoken. ${eliminated.name} was eliminated.`, 1800);
+
+// 3️⃣ Clean transition
+hideVoteOverlay();
+toNightOrEnd(eliminated);
+return;
+
+
+    }
+
+    const voterIdx = voteOrder[voteIndex];
+    const voter = state.players[voterIdx];
+
+    setText('voterTurn', `Pass the phone to ${voter.name}`);
+    await passPhoneTo(voter.name);
+
+
+    const list = $('voteList');
+    list.innerHTML = '';
+    state.players.forEach((p,idx)=>{
+      if (!p.alive) return;
+      const btn = document.createElement('button');
+      btn.className = 'player-btn';
+      btn.innerHTML = `<strong>${p.name}</strong><br><span class=\"muted\">Vote</span>`;
+      btn.onclick = async () => {
+  if (voteLocked) return;
+  voteLocked = true;
+
+  votes[idx] = (votes[idx] || 0) + 1;
+  voteIndex++;
+
+  await blackout(600); // pass-phone moment
+  voteLocked = false;
+
+  renderVotingTurn();
+};
+
+      list.appendChild(btn);
+    });
+  }
+
+  function toNightOrEnd(eliminated){
+    if (checkWin()) { toGameOver(); return; }
+    // Next round
+    state.round++;
+    state.nightSelections = { mafia: null, doctor: null, cop: null };
+    toNightRole('mafia');
+  }
+
+  // =============================================================
+  // Win Conditions
+  // =============================================================
+  function checkWin(){
+    const alive = state.players.filter(p=>p.alive);
+    const mafiaAlive = alive.filter(p=>p.role==='Mafia').length;
+    const nonMafiaAlive = alive.length - mafiaAlive;
+    if (mafiaAlive === 0) { state.winner = 'Citizens'; return true; }
+    if (mafiaAlive >= nonMafiaAlive) { state.winner = 'Mafia'; return true; }
+    return false;
+  }
+
+  // =============================================================
+  // Game Over + Controls (Play Again / Return Home)
+  // =============================================================
+async function toGameOver(){
+  switchSection('gameover');
+
+  const winnerText = `${state.winner} win!`;
+  setText('winner', winnerText);
+
+  // 🎙️ VOICE ANNOUNCEMENT
+  await speak(`Game over. ${state.winner} win.`);
+
+  // Results list
+  const results = $('results'); 
+  results.innerHTML = '';
+  state.players.forEach(p=>{
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    const name = document.createElement('div'); name.textContent = p.name; row.appendChild(name);
+    const role = document.createElement('div'); role.innerHTML = `<span class="chip">${p.role}</span>`; row.appendChild(role);
+    const status = document.createElement('div'); status.className = p.alive? 'alive':'dead';
+    status.textContent = p.alive? 'Alive':'Dead'; 
+    row.appendChild(status);
+    results.appendChild(row);
+  });
+
+  // History
+  const history = $('history'); 
+  history.innerHTML = '';
+  state.history.forEach(h=>{
+    const line = document.createElement('div');
+    line.innerHTML = `
+      <strong>Round ${h.round}</strong> • 
+      Night kill: ${h.nightKill || '—'} • 
+      Healed: ${h.healed || '—'} • 
+      Voted out: ${h.votedOut || '—'}
+    `;
+    history.appendChild(line);
+  });
+}
+
+
+  $('btnPlayAgain').onclick = () => { playAgain(); };
+
+  function playAgain(){
+    // Keep player names as they were entered initially
+    const names = state.players.map(p=>p.name);
+    // Rebuild players fresh
+    state.players = names.map(n=>({ name: n, role: null, alive: true, revealed: false }));
+
+    // Build a fresh pool using current role counts (what user set in Setup)
+    const totalPlayers = state.players.length;
+    let { mafia, doctor, cop, citizen } = state.roles;
+    const totalAssigned = mafia + doctor + cop + citizen;
+    if (totalAssigned < totalPlayers){
+      citizen += (totalPlayers - totalAssigned);
+    }
+    const pool = [];
+    pool.push(...Array(mafia).fill('Mafia'));
+    pool.push(...Array(doctor).fill('Doctor'));
+    pool.push(...Array(cop).fill('Cop'));
+    pool.push(...Array(citizen).fill('Citizen'));
+    shuffle(pool);
+    state.players.forEach((p,i)=>{ p.role = pool[i]; });
+
+    // Reset run state
+    state.round = 1;
+    state.history = [];
+    state.phase = 'reveal';
+    state.nightSelections = { mafia: null, doctor: null, cop: null };
+    toRevealPhase();
+  }
+
+  // ==== Return Home (full reset to Setup UI without reload) ====
+  $('btnReturnHome').onclick = () => { returnHome(); };
+
+  function returnHome(){
+    // Reset state completely
+    state.players = [];
+    state.round = 0;
+    state.history = [];
+    state.phase = 'setup';
+    state.nightSelections = { mafia: null, doctor: null, cop: null };
+    state.winner = null;
+
+    // Reset UI controls but keep playerCount as shown
+    renderNameFields();
+    validateSetup();
+    switchSection('setup');
+
+    // Ensure overlays are hidden
+    $('blackout').style.display='none';
+    
+  }
+
+  // =============================================================
+  // Helpers
+  // =============================================================
+  function switchSection(id){
+    ['setup','reveal','night','morning','discussion','voting','gameover'].forEach(sec=>{
+      if (sec===id) show(sec); else hide(sec);
+    });
+    // Always ensure blackout and overlays are hidden when switching
+    $('blackout').style.display='none';
+  }
+
+
+
+  // queued speech helper — resolves when the utterance finishes
+  function speak(text, opts = {}) {
+    if (!('speechSynthesis' in window)) return Promise.resolve();
+
+    // Ensure global queue exists
+    window._speechQueue = window._speechQueue || [];
+    const queue = window._speechQueue;
+
+    return new Promise(resolve => {
+      const job = { text: String(text), resolve, interrupt: !!opts.interrupt };
+
+      // If interrupt requested, clear pending queue and stop current speech
+      if (job.interrupt) {
+        queue.length = 0;
+        window.speechSynthesis.cancel();
+      }
+
+      queue.push(job);
+
+      // If this is the only job, start processing
+      if (queue.length === 1) processSpeechQueue();
+
+      function processSpeechQueue() {
+        if (!queue || queue.length === 0) return;
+        const current = queue[0];
+        const utter = new SpeechSynthesisUtterance(current.text);
+        utter.lang = "en-US";
+        utter.rate = 1;
+
+        utter.onend = () => {
+          try { current.resolve(); } catch(e) {}
+          queue.shift();
+          if (queue.length > 0) processSpeechQueue();
+        };
+        utter.onerror = () => {
+          try { current.resolve(); } catch(e) {}
+          queue.shift();
+          if (queue.length > 0) processSpeechQueue();
+        };
+
+        window.speechSynthesis.speak(utter);
+      }
+    });
+  }
+  async function narrate(text, delay = 1200) {
+  await speak(text);
+  await sleep(delay);
+}
+async function passPhoneTo(name) {
+  await narrate(`Pass the phone to ${name}.`, 1000);
+}
+
+</script>
+
+</body>
+</html>
