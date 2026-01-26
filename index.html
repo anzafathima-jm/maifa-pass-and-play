@@ -724,7 +724,6 @@ if (role === 'mafia') {
   setText('nightTitle', titleMap[role]);
   setText('nightSub', 'Select a player and confirm.');
   renderNightPlayers(role);
-  $('btnConfirmNight').disabled = false;
 }
 
 // ---------- DOCTOR / COP FLOW (UI first, voice with it) ----------
@@ -740,9 +739,6 @@ else {
   } else if (role === 'cop') {
     await narrate("Cop, wake up and investigate a player.", 900);
   }
-
-  $('btnConfirmNight').disabled = false;
-
 }
 
 
@@ -784,6 +780,9 @@ selectedPlayerIndex = null;
       // If there *is* an actor alive, make sure no auto timer remains
       if (window._nightAutoTimer) { clearTimeout(window._nightAutoTimer); window._nightAutoTimer = null; }
     }
+    // ✅ Finally allow confirming only after UI is fully ready
+    $('btnConfirmNight').disabled = false;
+
   }
 
   // -----------------------------
@@ -1314,4 +1313,5 @@ async function passPhoneTo(name) {
 
 </body>
 </html>
+
 
