@@ -420,10 +420,11 @@
     <!-- GAME OVER -->
     <!-- WAKE UP SCREEN -->
     <section id="wake" class="card hidden center">
-      <h1 class="title">Morning</h1>
+      <h1 class="title" id="wakeTitle">—</h1>
       <div class="spacer"></div>
-      <div class="big-red">Everyone wakes up...</div>
-    </section>
+      <div class="big-red" id="wakeText">—</div>
+</section>
+
     <section id="gameover" class="card hidden">
       <h1 class="title">GAME OVER</h1>
       <div class="subtitle">Mafia made by anzafathima</div>
@@ -711,8 +712,11 @@ function hideBlackout() {
 // ---------- MAFIA FLOW (UI AFTER wakeup voice) ----------
 if (role === 'mafia') {
 
+  setText('wakeTitle', 'Night');
+  setText('wakeText', 'Everyone, close your eyes…');
   switchSection('wake');
   await narrate("Night has come. Everyone, close your eyes.", 1200);
+
   await narrate("Mafia, wake up and choose your target.", 800);
 
   // ✅ NOW build and show Mafia UI
@@ -941,6 +945,8 @@ if (nightListEl) {
     }
 
     // Morning wake-up announcement (EVERY ROUND)
+setText('wakeTitle', 'Morning');
+setText('wakeText', 'Everyone wakes up…');
 switchSection('wake');
 await speak("Everyone wakes up...");
 await sleep(2000);
@@ -1308,3 +1314,4 @@ async function passPhoneTo(name) {
 
 </body>
 </html>
+
