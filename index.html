@@ -254,6 +254,7 @@
     <!-- SETUP SCREEN -->
     <section id="setup" class="card">
       <h1 class="title">MAFIA — Setup</h1>
+      <div class="subtitle">made by anzafathima</div>
       <div class="spacer"></div>
       <div class="row" style="align-items:flex-end; gap:16px;">
         <div class="col">
@@ -288,28 +289,32 @@
         </div>
         <div class="col" style="min-width:260px;">
           <label>Roles</label>
-          <div class="row">
-            <div class="col" style="min-width:120px;">
-              <label>Mafia</label>
-              <input type="number" id="roleMafia" min="1" value="2" />
-            </div>
-            <div class="col" style="min-width:120px;">
-              <label>Doctor</label>
-              <input type="number" id="roleDoctor" min="0" value="1" />
-            </div>
-          </div>
-          <div class="row">
-            <div class="col" style="min-width:120px;">
-              <label>Cop</label>
-              <input type="number" id="roleCop" min="0" value="1" />
-            </div>
-            <div class="col" style="min-width:120px;">
-              <label>Citizens</label>
-              <input type="number" id="roleCitizen" min="0" value="0" />
-            </div>
-          </div>
-          <div class="subtitle" id="roleWarning"></div>
-        </div>
+
+<div class="row">
+  <div class="col" style="min-width:120px;">
+    <label>Mafia</label>
+    <input type="number" id="roleMafia" min="1" value="2" />
+  </div>
+</div>
+
+<div class="row">
+  <div class="col" style="min-width:120px;">
+    <label>
+      <input type="checkbox" id="hasDoctor" checked />
+      Doctor
+    </label>
+  </div>
+
+  <div class="col" style="min-width:120px;">
+    <label>
+      <input type="checkbox" id="hasCop" checked />
+      Cop
+    </label>
+  </div>
+</div>
+
+<div class="subtitle" id="roleWarning"></div>
+
       </div>
     </section>
 
@@ -412,7 +417,7 @@
 
 
 
-    <!-- GAME OVER →
+    <!-- GAME OVER -->
     <!-- WAKE UP SCREEN -->
     <section id="wake" class="card hidden center">
       <h1 class="title">Morning</h1>
@@ -421,6 +426,7 @@
     </section>
     <section id="gameover" class="card hidden">
       <h1 class="title">GAME OVER</h1>
+      <div class="subtitle">Mafia made by anzafathima</div>
       <h2 id="winner" class="big-red" style="font-size:24px;">—</h2>
       <div class="spacer"></div>
       <h3>Results</h3>
@@ -483,7 +489,7 @@
     players: [], // {name, role, alive, revealed}
     round: 0,
     history: [], // {round, nightKill, healed, votedOut}
-    roles: { mafia: 2, doctor: 1, cop: 1, citizen: 0 },
+    roles: { mafia: 2, doctor: 1, cop: 1 },
     order: ["mafia", "doctor", "cop"], // fixed order, no randomness
     phase: "setup",
     nightSelections: { mafia: null, doctor: null, cop: null },
@@ -515,7 +521,7 @@ function hideVoteOverlay() {
   // =============================================================
   const playerCountEl = $('playerCount');
   const nameFieldsEl = $('nameFields');
-  const roleInputs = { mafia: $('roleMafia'), doctor: $('roleDoctor'), cop: $('roleCop'), citizen: $('roleCitizen') };
+  const roleInputs = { mafia: $('roleMafia') };
   let playerCount = 6;
 
   function renderNameFields() {
@@ -533,32 +539,44 @@ function hideVoteOverlay() {
     nameFieldsEl.classList.add('scroll');
   }
 
-  function validateSetup() {
-    // read names
-    const inputs = nameFieldsEl.querySelectorAll('input');
-    state.players = Array.from(inputs).map(inp => ({ name: inp.value.trim(), role: null, alive: true, revealed: false }));
+function validateSetup() {
+  // read names
+  const inputs = nameFieldsEl.querySelectorAll('input');
+  state.players = Array.from(inputs).map(inp => ({
+    name: inp.value.trim(),
+    role: null,
+    alive: true,
+    revealed: false
+  }));
 
-    // read roles
-    state.roles.mafia = clamp(parseInt(roleInputs.mafia.value||0), 0, 10);
-    state.roles.doctor = clamp(parseInt(roleInputs.doctor.value||0), 0, 10);
-    state.roles.cop = clamp(parseInt(roleInputs.cop.value||0), 0, 10);
-    state.roles.citizen = clamp(parseInt(roleInputs.citizen.value||0), 0, 99);
+  // read roles (new system)
+  state.roles.mafia = clamp(parseInt(roleInputs.mafia.value || 0), 1, 10);
+  state.roles.doctor = $('hasDoctor').checked ? 1 : 0;
+  state.roles.cop = $('hasCop').checked ? 1 : 0;
 
-    const totalPlayers = playerCount;
-    const totalAssigned = state.roles.mafia + state.roles.doctor + state.roles.cop + state.roles.citizen;
+  const totalPlayers = playerCount;
+  const totalAssigned = state.roles.mafia + state.roles.doctor + state.roles.cop;
 
-    // Subtle info
-    setText('setupInfo', `Total roles ${totalAssigned} / players ${totalPlayers}`);
+  // Subtle info
+  setText(
+    'setupInfo',
+    `Special roles ${totalAssigned} / players ${totalPlayers} (Citizens auto)`
+  );
 
-    const warn = $('roleWarning');
-    let msg = '';
-    if (totalAssigned > totalPlayers) msg = 'Total roles cannot exceed number of players.';
-    if (state.roles.mafia === 0) msg = 'At least 1 Mafia is required.';
-    if (state.players.filter(p => p.name).length < totalPlayers) msg = 'Please enter all player names.';
-    warn.textContent = msg;
+  const warn = $('roleWarning');
+  let msg = '';
 
-    $('startGame').disabled = !!msg;
-  }
+  if (totalAssigned > totalPlayers)
+    msg = 'Too many special roles for this number of players.';
+  else if (state.roles.mafia < 1)
+    msg = 'At least 1 Mafia is required.';
+  else if (state.players.filter(p => p.name).length < totalPlayers)
+    msg = 'Please enter all player names.';
+
+  warn.textContent = msg;
+  $('startGame').disabled = !!msg;
+}
+
 
   function clamp(n, min, max) { if (isNaN(n)) return min; return Math.max(min, Math.min(max, n)); }
 
@@ -573,16 +591,15 @@ function hideVoteOverlay() {
     // finalize players (ensure exact count)
     state.players = state.players.slice(0, playerCount);
     // Fill extra citizens automatically if not specified
-    const totalAssigned = state.roles.mafia + state.roles.doctor + state.roles.cop + state.roles.citizen;
-    if (totalAssigned < playerCount) {
-      state.roles.citizen += (playerCount - totalAssigned);
-    }
-    // Assign roles (deterministic order for reveal but random distribution among players)
     const pool = [];
+
     pool.push(...Array(state.roles.mafia).fill('Mafia'));
-    pool.push(...Array(state.roles.doctor).fill('Doctor'));
-    pool.push(...Array(state.roles.cop).fill('Cop'));
-    pool.push(...Array(state.roles.citizen).fill('Citizen'));
+    if (state.roles.doctor) pool.push('Doctor');
+    if (state.roles.cop) pool.push('Cop');
+
+    const citizensNeeded = playerCount - pool.length;
+    pool.push(...Array(citizensNeeded).fill('Citizen'));
+
     shuffle(pool);
     state.players.forEach((p,i)=>{ p.role = pool[i]; p.alive = true; p.revealed = false; });
     state.round = 1;
@@ -651,13 +668,21 @@ function showBlackout() {
 function hideBlackout() {
   $('blackout').style.display = 'none';
 }
-
   // -----------------------------
   // Clean Night flow + auto-timeout
   // -----------------------------
   async function toNightRole(role){
     currentNightRole = role;
+    // ⛔ Skip role completely if not part of this game
+    if (role === 'doctor' && state.roles.doctor === 0) {
+    return toNightRole('cop');
+    }
 
+  if (role === 'cop' && state.roles.cop === 0) {
+  await blackout(600);
+  await nightResolve();
+  return;
+}
     // Always ensure the nightPlayers container is freshly built / visible
     const nightListEl = $('nightPlayers');
     if (nightListEl) {
@@ -677,35 +702,52 @@ function hideBlackout() {
       return toNightRole('doctor');
     }
 
-    // Announce the role wake call (always for doctor/cop, whether alive or not)
-    if (role === 'mafia') {
-      await narrate("Night has come. Everyone, close your eyes.", 1500);
-      await sleep(1200);
-      await narrate("Mafia, wake up and choose your target.", 1200);
-     } 
-    else if (role === 'doctor') {
-      await narrate("Doctor, wake up and choose someone to heal.", 1200);
+      const titleMap = {
+  mafia: 'Mafia, select a player to execute',
+  doctor: 'Doctor, select a player to heal',
+  cop: 'Cop, select a player to investigate'
+};
 
-    } else if (role === 'cop') {
-      await narrate("Cop, wake up and investigate a player.", 1200);
-    }
+// ---------- MAFIA FLOW (UI AFTER wakeup voice) ----------
+if (role === 'mafia') {
 
-    // Show night UI for selection
-    switchSection('night');
-    const titleMap = {
-      mafia: 'Mafia, select a player to execute',
-      doctor: 'Doctor, select a player to heal',
-      cop: 'Cop, select a player to investigate'
-    };
-    setText('nightTitle', titleMap[role]);
-    setText('nightSub', role==='cop' ? 'You cannot investigate yourself.' : 'Select a player and confirm.');
+  switchSection('wake');
+  await narrate("Night has come. Everyone, close your eyes.", 1200);
+  await narrate("Mafia, wake up and choose your target.", 800);
 
-    // Render players for selection (alive only)
-    renderNightPlayers(role);
+  // ✅ NOW build and show Mafia UI
+  switchSection('night');
+  setText('nightTitle', titleMap[role]);
+  setText('nightSub', 'Select a player and confirm.');
+  renderNightPlayers(role);
+  $('btnConfirmNight').disabled = false;
+}
 
-    // Reset selection & confirm
-    selectedPlayerIndex = null;
-    $('btnConfirmNight').disabled = true;
+// ---------- DOCTOR / COP FLOW (UI first, voice with it) ----------
+else {
+
+  switchSection('night');
+  setText('nightTitle', titleMap[role]);
+  setText('nightSub', role==='cop' ? 'You cannot investigate yourself.' : 'Select a player and confirm.');
+  renderNightPlayers(role);
+
+  if (role === 'doctor') {
+    await narrate("Doctor, wake up and choose someone to heal.", 900);
+  } else if (role === 'cop') {
+    await narrate("Cop, wake up and investigate a player.", 900);
+  }
+
+  $('btnConfirmNight').disabled = false;
+
+}
+
+
+
+
+
+// Reset selection only
+selectedPlayerIndex = null;
+
 
     // Determine first alive acting index for this role (used to disable self for Cop)
     let actorIdx = -1;
@@ -1148,32 +1190,33 @@ async function toGameOver(){
   function playAgain(){
     // Keep player names as they were entered initially
     const names = state.players.map(p=>p.name);
-    // Rebuild players fresh
-    state.players = names.map(n=>({ name: n, role: null, alive: true, revealed: false }));
+      // Rebuild players fresh
+      state.players = names.map(n=>({ name: n, role: null, alive: true, revealed: false }));
 
-    // Build a fresh pool using current role counts (what user set in Setup)
-    const totalPlayers = state.players.length;
-    let { mafia, doctor, cop, citizen } = state.roles;
-    const totalAssigned = mafia + doctor + cop + citizen;
-    if (totalAssigned < totalPlayers){
-      citizen += (totalPlayers - totalAssigned);
+      // Build a fresh pool using current role counts (what user set in Setup)
+      const totalPlayers = state.players.length;
+      let { mafia, doctor, cop } = state.roles;
+
+      const pool = [];
+      pool.push(...Array(mafia).fill('Mafia'));
+      if (doctor) pool.push('Doctor');
+      if (cop) pool.push('Cop');
+
+      const citizensNeeded = totalPlayers - pool.length;
+      pool.push(...Array(citizensNeeded).fill('Citizen'));
+
+      shuffle(pool);
+      state.players.forEach((p,i)=>{ p.role = pool[i]; });
+
+      
+
+     // Reset run state
+      state.round = 1;
+      state.history = [];
+      state.phase = 'reveal';
+      state.nightSelections = { mafia: null, doctor: null, cop: null };
+      toRevealPhase();
     }
-    const pool = [];
-    pool.push(...Array(mafia).fill('Mafia'));
-    pool.push(...Array(doctor).fill('Doctor'));
-    pool.push(...Array(cop).fill('Cop'));
-    pool.push(...Array(citizen).fill('Citizen'));
-    shuffle(pool);
-    state.players.forEach((p,i)=>{ p.role = pool[i]; });
-
-    // Reset run state
-    state.round = 1;
-    state.history = [];
-    state.phase = 'reveal';
-    state.nightSelections = { mafia: null, doctor: null, cop: null };
-    toRevealPhase();
-  }
-
   // ==== Return Home (full reset to Setup UI without reload) ====
   $('btnReturnHome').onclick = () => { returnHome(); };
 
@@ -1200,7 +1243,7 @@ async function toGameOver(){
   // Helpers
   // =============================================================
   function switchSection(id){
-    ['setup','reveal','night','morning','discussion','voting','gameover'].forEach(sec=>{
+    ['setup','reveal','night','wake','morning','discussion','voting','gameover'].forEach(sec=>{
       if (sec===id) show(sec); else hide(sec);
     });
     // Always ensure blackout and overlays are hidden when switching
