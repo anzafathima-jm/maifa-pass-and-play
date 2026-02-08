@@ -835,10 +835,25 @@ selectedPlayerIndex = null;
 
     // set the selection only if a choice was made
     if (chosenIdx != null) {
-      if (currentNightRole==='mafia') state.nightSelections.mafia = chosenIdx;
-      if (currentNightRole==='doctor') state.nightSelections.doctor = chosenIdx;
-      if (currentNightRole==='cop') state.nightSelections.cop = chosenIdx;
+  if (currentNightRole === 'mafia') {
+    state.nightSelections.mafia = chosenIdx;
+  }
+
+  if (currentNightRole === 'doctor') {
+    // ✅ Doctor can heal ONLY if Doctor is alive
+    const doctorAlive = state.players.some(
+      p => p.alive && p.role === 'Doctor'
+    );
+    if (doctorAlive) {
+      state.nightSelections.doctor = chosenIdx; // self-heal allowed
     }
+  }
+
+  if (currentNightRole === 'cop') {
+    state.nightSelections.cop = chosenIdx;
+  }
+}
+
 
     // clear any auto timer
     if (window._nightAutoTimer) { clearTimeout(window._nightAutoTimer); window._nightAutoTimer = null; }
@@ -850,6 +865,7 @@ if (nightListEl) {
   Array.from(nightListEl.querySelectorAll('.player-btn')).forEach(b => b.classList.remove('selected'));
   selectedPlayerIndex = null;
   $('btnConfirmNight').disabled = true;
+  // Doctor CAN heal themselves — intentional
   // hide while we move to the next role (toNightRole will call renderNightPlayers and make it visible)
   nightListEl.style.visibility = 'hidden';
 }
@@ -1313,5 +1329,6 @@ async function passPhoneTo(name) {
 
 </body>
 </html>
+
 
 
