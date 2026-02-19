@@ -48,7 +48,7 @@ https://anzafathima-jm.github.io/maifa-pass-and-play/
 
 ## 👤 Developer
 
-Aifu  
+Anza fathima 
 BTech Student  
 
 ---
