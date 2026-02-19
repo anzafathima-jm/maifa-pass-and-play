@@ -247,6 +247,57 @@
 
 
     .center { text-align: center; }
+
+
+
+    /* Toggle Switch Style */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle input {
+  appearance: none;
+  width: 42px;
+  height: 22px;
+  background: #2a2735;
+  border-radius: 50px;
+  position: relative;
+  cursor: pointer;
+  transition: 0.3s;
+  outline: none;
+}
+
+.toggle input::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: 0.3s;
+}
+
+.toggle input:checked {
+  background: var(--red);
+}
+
+.toggle input:checked::before {
+  transform: translateX(20px);
+}
+
+.toggle label {
+  cursor: pointer;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+
+
   </style>
 </head>
 <body>
@@ -261,13 +312,13 @@
           <label>Player Count</label>
           <div class="counter">
             <button id="decPlayers" class="btn ghost" aria-label="Decrease players">−</button>
-            <div id="playerCount" class="pill">6</div>
+            <div id="playerCount" class="pill">4</div>
             <button id="incPlayers" class="btn ghost" aria-label="Increase players">+</button>
           </div>
         </div>
         <div class="col grow">
           <label>Subtle Info</label>
-          <div id="setupInfo" class="subtitle">Total roles 0 / players 6</div>
+          <div id="setupInfo" class="subtitle"></div>
         </div>
         <div class="col">
           <button id="startGame" class="btn red" disabled>Start Game</button>
@@ -293,23 +344,23 @@
 <div class="row">
   <div class="col" style="min-width:120px;">
     <label>Mafia</label>
-    <input type="number" id="roleMafia" min="1" value="2" />
+    <input type="number" id="roleMafia" min="1" value="1" />
   </div>
 </div>
 
 <div class="row">
   <div class="col" style="min-width:120px;">
-    <label>
-      <input type="checkbox" id="hasDoctor" checked />
-      Doctor
-    </label>
+        <div class="toggle">
+            <input type="checkbox" id="hasDoctor" checked>
+            <label for="hasDoctor">Doctor</label>
+        </div>
   </div>
 
   <div class="col" style="min-width:120px;">
-    <label>
-      <input type="checkbox" id="hasCop" checked />
-      Cop
-    </label>
+         <div class="toggle">
+            <input type="checkbox" id="hasCop" checked>
+            <label for="hasCop">Cop</label>
+        </div>
   </div>
 </div>
 
@@ -490,7 +541,7 @@
     players: [], // {name, role, alive, revealed}
     round: 0,
     history: [], // {round, nightKill, healed, votedOut}
-    roles: { mafia: 2, doctor: 1, cop: 1 },
+    roles: { mafia: 1, doctor: 1, cop: 1 },
     order: ["mafia", "doctor", "cop"], // fixed order, no randomness
     phase: "setup",
     nightSelections: { mafia: null, doctor: null, cop: null },
@@ -523,7 +574,7 @@ function hideVoteOverlay() {
   const playerCountEl = $('playerCount');
   const nameFieldsEl = $('nameFields');
   const roleInputs = { mafia: $('roleMafia') };
-  let playerCount = 6;
+  let playerCount = 4;
 
   function renderNameFields() {
     nameFieldsEl.innerHTML = '';
@@ -585,8 +636,10 @@ function validateSetup() {
   $('decPlayers').onclick = () => { playerCount = Math.max(3, playerCount-1); playerCountEl.textContent = playerCount; renderNameFields(); validateSetup(); };
 
   Object.values(roleInputs).forEach(inp => inp.addEventListener('input', validateSetup));
-  renderNameFields();
-  validateSetup();
+    $('hasDoctor').addEventListener('change', validateSetup);
+    $('hasCop').addEventListener('change', validateSetup);
+    renderNameFields();
+    validateSetup();
 
   $('startGame').onclick = () => {
     // finalize players (ensure exact count)
@@ -1329,6 +1382,3 @@ async function passPhoneTo(name) {
 
 </body>
 </html>
-
-
-
