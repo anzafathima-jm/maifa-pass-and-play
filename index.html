@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MAFIA · the party game</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#111111">
   <style>
     * {
       margin: 0;
@@ -1063,5 +1065,11 @@
     }
   })();
 </script>
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+  </script>
 </body>
 </html>
+
