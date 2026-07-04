@@ -1,5 +1,12 @@
-const CACHE_NAME = "mafia-cache-v1";
-const urlsToCache = ["index.html"];
+const CACHE_NAME = "mafia-cache-v2";
+
+const urlsToCache = [
+  "./",
+  "index.html",
+  "style.css",
+  "script.js",
+  "manifest.json"
+];
 
 self.addEventListener("install", event => {
   event.waitUntil(
