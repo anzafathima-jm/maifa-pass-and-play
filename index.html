@@ -5,398 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MAFIA · the party game</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#111111">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --bg: #0b0a0e;
-      --surface: #121016;
-      --surface-light: #1e1a24;
-      --border: #2e2a38;
-      --text: #f0eef7;
-      --text-muted: #a8a3b5;
-      --accent: #c41e3a;
-      --accent-dim: #8f142b;
-      --green: #2c9a6e;
-      --shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.8);
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      background-image: radial-gradient(circle at 30% 30%, #201c28 0%, var(--bg) 60%);
-    }
-
-    .container {
-      max-width: 1040px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: 2rem 1.8rem;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(2px);
-    }
-
-    h1, h2, h3 {
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    h1 {
-      font-size: 2rem;
-      background: linear-gradient(135deg, #fff, #d0ccdd);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.25rem;
-    }
-
-    h2 {
-      font-size: 1.5rem;
-      color: var(--text);
-      border-left: 4px solid var(--accent);
-      padding-left: 1rem;
-      margin: 1rem 0 1.5rem 0;
-    }
-
-    h3 {
-      font-size: 1.2rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .pill {
-      background: var(--surface-light);
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 0.5rem 1.2rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .counter {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      background: var(--surface-light);
-      border-radius: 60px;
-      border: 1px solid var(--border);
-      padding: 4px;
-    }
-
-    .counter .btn.ghost {
-      background: transparent;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 40px;
-      font-size: 1.4rem;
-      font-weight: 400;
-      color: var(--text);
-      line-height: 1;
-      padding: 0;
-    }
-
-    .counter .btn.ghost:hover {
-      background: #2d2837;
-    }
-
-    .row {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-
-    .col {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .grow {
-      flex: 1 1 auto;
-    }
-
-    label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-    }
-
-    input, select {
-      background: var(--surface-light);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 0.8rem 1.2rem;
-      color: var(--text);
-      font-size: 1rem;
-      outline: none;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--accent);
-    }
-
-    .btn {
-      background: var(--surface-light);
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 0.8rem 1.8rem;
-      font-weight: 600;
-      color: var(--text);
-      cursor: pointer;
-      transition: 0.1s ease;
-      font-size: 0.95rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .btn:hover {
-      background: #2d2837;
-      border-color: #4f4a5c;
-    }
-
-    .btn.red {
-      background: var(--accent);
-      border-color: var(--accent-dim);
-      color: white;
-      box-shadow: 0 8px 20px -10px #c41e3a;
-    }
-
-    .btn.red:hover {
-      background: #aa1933;
-      border-color: #7a1026;
-    }
-
-    .btn.ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-    }
-
-    .btn:disabled {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-
-    .player-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-    }
-
-    .player-btn {
-      background: var(--surface-light);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 1rem;
-      text-align: left;
-      cursor: pointer;
-      transition: 0.1s;
-      color: var(--text);
-      width: 100%;
-      font-weight: 500;
-    }
-
-    .player-btn.selected {
-      outline: 3px solid var(--accent);
-      background: #271b22;
-    }
-
-    .player-btn.dead {
-      opacity: 0.5;
-      text-decoration: line-through;
-      pointer-events: none;
-    }
-
-    .player-btn:disabled {
-      opacity: 0.3;
-      pointer-events: none;
-    }
-
-    .toggle {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .toggle input {
-      appearance: none;
-      width: 48px;
-      height: 24px;
-      background: #282430;
-      border-radius: 30px;
-      border: 1px solid var(--border);
-      position: relative;
-      cursor: pointer;
-    }
-
-    .toggle input::before {
-      content: "";
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: #bcb8c7;
-      border-radius: 50%;
-      top: 1px;
-      left: 2px;
-      transition: 0.2s;
-    }
-
-    .toggle input:checked {
-      background: var(--accent);
-    }
-
-    .toggle input:checked::before {
-      transform: translateX(22px);
-      background: white;
-    }
-
-    .toggle label {
-      cursor: pointer;
-      font-size: 0.95rem;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-
-    .overlay, .blackout {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(2, 0, 5, 0.85);
-      backdrop-filter: blur(4px);
-      z-index: 100;
-    }
-
-    .blackout {
-      background: black;
-      backdrop-filter: none;
-    }
-
-    .modal {
-      background: var(--surface);
-      border: 2px solid var(--accent);
-      border-radius: 36px;
-      padding: 2.5rem;
-      max-width: 480px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 0 50px var(--accent-dim);
-    }
-
-    .big-red {
-      font-size: 2.8rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1.2;
-      text-transform: uppercase;
-      letter-spacing: -0.01em;
-    }
-
-    .big-red.small {
-      font-size: 2rem;
-    }
-
-    .result-row {
-      display: grid;
-      grid-template-columns: 1fr 140px 100px;
-      gap: 8px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
-    }
-
-    .alive { color: var(--green); font-weight: 600; }
-    .dead { color: var(--accent); text-decoration: line-through; opacity: 0.8; }
-
-    .chip {
-      background: var(--surface-light);
-      border-radius: 40px;
-      padding: 0.3rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .scroll {
-      max-height: 280px;
-      overflow-y: auto;
-      padding-right: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--accent) var(--surface);
-    }
-
-    .scroll::-webkit-scrollbar {
-      width: 6px;
-    }
-    .scroll::-webkit-scrollbar-track {
-      background: var(--surface);
-    }
-    .scroll::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 10px;
-    }
-
-    .hidden { display: none !important; }
-
-    #timer {
-      font-size: 4rem;
-      font-weight: 800;
-      background: #0c0a12;
-      padding: 0.2rem 1.8rem;
-      border-radius: 60px;
-      border: 1px solid var(--border);
-      letter-spacing: 4px;
-      color: var(--accent);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .footer {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      margin-top: 2rem;
-    }
-
-    .spacer { height: 1.5rem; }
-  </style>
+  <meta name="theme-color" content="#0A0A0F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<div class="ambient" aria-hidden="true"></div>
+
 <div class="container">
 
   <!-- SETUP SCREEN -->
   <section id="setup" class="card">
-    <h1>MAFIA <span style="font-weight:300; color:#6f6a7c;">·</span> COUNCIL</h1>
+    <div class="dossier-tab">CASE FILE · NEW</div>
+    <h1>MAFIA <span class="hairline">·</span> COUNCIL</h1>
     <div class="subtitle">designed by anzafathima · prepare the conspiracy</div>
 
     <div class="row" style="align-items: flex-end; gap: 2rem;">
@@ -410,10 +34,10 @@
       </div>
       <div class="col grow">
         <label>ROLE BALANCE</label>
-        <div id="setupInfo" class="pill" style="background:#1d1925;">special 3 / 4 (citizens auto)</div>
+        <div id="setupInfo" class="pill pill-dim">special 3 / 4 (citizens auto)</div>
       </div>
       <div class="col">
-        <button id="startGame" class="btn red" disabled>⚡ START GAME</button>
+        <button id="startGame" class="btn red" disabled><span class="btn-icon">⚡</span> START GAME</button>
       </div>
     </div>
 
@@ -428,7 +52,7 @@
         <label>ROSTER · SPECIAL ROLES</label>
         <div class="col" style="gap: 1rem;">
           <div class="row" style="justify-content: space-between;">
-            <span style="color:var(--accent); font-weight:600;">MAFIA</span>
+            <span class="role-label role-mafia">MAFIA</span>
             <input type="number" id="roleMafia" min="1" value="1" style="width:80px; text-align:center;" />
           </div>
           <div class="toggle">
@@ -440,27 +64,31 @@
             <label for="hasCop">🕵️ COP</label>
           </div>
         </div>
-        <div id="roleWarning" class="subtitle" style="color:#f48b8b; margin-top: 0.5rem;"></div>
+        <div id="roleWarning" class="subtitle warning-text"></div>
       </div>
     </div>
   </section>
 
   <!-- REVEAL ROLES (pass device) -->
-  <section id="reveal" class="card hidden center" style="text-align:center;">
-    <h2>⚔️ PASS THE DEVICE</h2>
-    <div id="revealPlayer" class="big-red" style="font-size:3rem;">—</div>
+  <section id="reveal" class="card scene-reveal hidden center">
+    <h2 class="scene-title">PASS THE DEVICE</h2>
+    <div id="revealPlayer" class="player-name-huge">—</div>
     <div class="spacer"></div>
-    <button id="btnRevealRole" class="btn red">🔍 REVEAL YOUR ROLE</button>
+
+    <div class="stamp-zone">
+      <button id="btnRevealRole" class="btn red btn-large">🔍 REVEAL YOUR ROLE</button>
+      <div id="roleText" class="stamp hidden">—</div>
+    </div>
+
     <div class="spacer"></div>
-    <div id="roleText" class="big-red small hidden">—</div>
     <div class="footer" style="justify-content:center;">
-      <button id="btnNextReveal" class="btn ghost hidden">➡️ NEXT</button>
+      <button id="btnNextReveal" class="btn ghost hidden">NEXT PLAYER →</button>
       <button id="btnContinueGame" class="btn red hidden">🌑 ENTER THE NIGHT</button>
     </div>
   </section>
 
   <!-- NIGHT PHASE -->
-  <section id="night" class="card hidden">
+  <section id="night" class="card scene-night hidden">
     <h1 id="nightTitle" class="title">NIGHT · MAFIA</h1>
     <div id="nightSub" class="subtitle">choose your victim</div>
     <div class="player-grid" id="nightPlayers"></div>
@@ -470,15 +98,16 @@
   </section>
 
   <!-- WAKE / ATMOSPHERIC SCREEN -->
-  <section id="wake" class="card hidden center">
-    <h2 id="wakeTitle" style="color:var(--text-muted);">—</h2>
-    <div class="big-red" id="wakeText" style="font-size:3rem;">—</div>
+  <section id="wake" class="card scene-void hidden center">
+    <div class="moon" aria-hidden="true"></div>
+    <h2 id="wakeTitle" class="wake-eyebrow">—</h2>
+    <div class="big-red wake-text" id="wakeText">—</div>
   </section>
 
   <!-- MORNING SUMMARY -->
-  <section id="morning" class="card hidden">
+  <section id="morning" class="card scene-morning hidden">
     <h2>🌅 MORNING</h2>
-    <div id="morningSummary" class="subtitle" style="font-size:1.2rem;"></div>
+    <div id="morningSummary" class="morning-line"></div>
     <div class="footer">
       <button id="btnStartDiscussion" class="btn red">🗣️ OPEN DISCUSSION</button>
     </div>
@@ -486,28 +115,29 @@
 
   <!-- DISCUSSION TIMER -->
   <section id="discussion" class="card hidden">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="timer-row">
       <h2>⌛ COUNCIL</h2>
       <div id="timer">02:30</div>
     </div>
-    <div style="display:flex; gap:0.8rem; margin-top:2rem;">
+    <div class="timer-controls">
       <button id="btnReduce10" class="btn ghost">−10 sec</button>
       <button id="btnSkipToVoting" class="btn red">⏩ CALL VOTE</button>
     </div>
   </section>
 
   <!-- VOTING TRIBUNAL -->
-  <section id="voting" class="card hidden">
+  <section id="voting" class="card scene-tribunal hidden">
     <h2>⚖️ TRIBUNAL</h2>
-    <div id="voterTurn" class="subtitle" style="font-size:1.2rem;">—</div>
+    <div id="voterTurn" class="voter-turn">—</div>
     <div class="player-grid" id="voteList"></div>
   </section>
 
   <!-- GAME OVER + HISTORY -->
-  <section id="gameover" class="card hidden">
-    <h1 style="-webkit-text-fill-color: initial; color: var(--accent);">GAME OVER</h1>
+  <section id="gameover" class="card scene-headline hidden">
+    <div class="masthead">THE DAILY CHRONICLE</div>
+    <h1 class="headline-title">CASE CLOSED</h1>
     <div class="subtitle">mafia · made by anzafathima</div>
-    <h2 id="winner" class="big-red" style="font-size:2.2rem;">—</h2>
+    <h2 id="winner" class="verdict">—</h2>
     <h3>📋 FINAL ROSTER</h3>
     <div id="results" class="scroll"></div>
     <h3 style="margin-top:1.5rem;">📜 CHRONICLE</h3>
@@ -520,556 +150,30 @@
 </div>
 
 <!-- COP OVERLAY -->
-<div id="copOverlay" class="overlay" style="display:none;">
-  <div class="modal">
-    <h2 style="color:var(--accent);">INVESTIGATION</h2>
+<div id="copOverlay" class="overlay">
+  <div class="modal verdict-modal">
+    <div class="modal-stamp">INTEL</div>
+    <h2 class="modal-heading">INVESTIGATION</h2>
     <div id="copResult" class="big-red" style="font-size:2rem;">—</div>
   </div>
 </div>
 
 <!-- VOTE RESULT OVERLAY -->
-<div id="voteOverlay" class="overlay" style="display:none;">
-  <div class="modal">
+<div id="voteOverlay" class="overlay">
+  <div class="modal verdict-modal">
+    <div class="modal-stamp">VERDICT</div>
     <div id="voteOverlayText" class="big-red" style="font-size:2.2rem;">—</div>
   </div>
 </div>
 
 <!-- BLACKOUT (silence) -->
-<div id="blackout" class="blackout" style="display:none;"><div class="msg"></div></div>
+<div id="blackout" class="blackout"><div class="msg"></div></div>
 
+<script src="script.js"></script>
 <script>
-  (function() {
-    // ---------- game state ----------
-    const state = {
-      players: [],
-      round: 1,
-      history: [],
-      roles: { mafia: 1, doctor: 1, cop: 1 },
-      order: ['mafia','doctor','cop'],
-      phase: 'setup',
-      nightSelections: { mafia: null, doctor: null, cop: null },
-      discussionSeconds: 150,
-      winner: null,
-    };
-
-    // DOM shortcuts
-    const $ = id => document.getElementById(id);
-    const show = id => $(id).classList.remove('hidden');
-    const hide = id => $(id).classList.add('hidden');
-    const setText = (id, txt) => $(id).textContent = txt;
-
-    // Click sound for setup only
-    const clickSound = {
-      play: () => {
-        // Only play during setup phase
-        if (state.phase === 'setup') {
-          try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.frequency.value = 800;
-            gainNode.gain.value = 0.1;
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.05);
-          } catch (e) {
-            // Ignore audio errors
-          }
-        }
-      }
-    };
-
-    // Add click sounds to setup buttons only
-    function addClickSounds() {
-      const setupButtons = document.querySelectorAll('#setup .btn');
-      setupButtons.forEach(btn => {
-        btn.addEventListener('click', () => clickSound.play());
-      });
-    }
-
-    // overlays
-    function showCopOverlay(text) { $('copResult').textContent = text; $('copOverlay').style.display = 'flex'; }
-    function hideCopOverlay() { $('copOverlay').style.display = 'none'; }
-    function showVoteOverlay(text) { $('voteOverlayText').textContent = text; $('voteOverlay').style.display = 'flex'; }
-    function hideVoteOverlay() { $('voteOverlay').style.display = 'none'; }
-    function blackout(ms=1200) { $('blackout').style.display='flex'; return new Promise(r => setTimeout(() => { $('blackout').style.display='none'; r(); }, ms)); }
-
-    // ---------- speech - ALWAYS THE SAME regardless of alive/dead ----------
-    function speak(text) {
-      if (!window.speechSynthesis) return Promise.resolve();
-      
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      return new Promise(resolve => {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.rate = 0.9;
-        utter.volume = 0.8;
-        utter.lang = 'en-US';
-        utter.onend = resolve;
-        utter.onerror = resolve;
-        speechSynthesis.speak(utter);
-      });
-    }
-    
-    async function narrate(text, delay = 1000) { 
-      await speak(text); 
-      if (delay) await sleep(delay); 
-    }
-    
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-    // ---------- setup UI ----------
-    const playerCountEl = $('playerCount');
-    const nameFieldsEl = $('nameFields');
-    const roleMafiaInp = $('roleMafia');
-    let playerCount = 4;
-
-    function renderNameFields() {
-      nameFieldsEl.innerHTML = '';
-      for (let i=0; i<playerCount; i++) {
-        const wrap = document.createElement('div');
-        wrap.style.marginBottom = '8px';
-        const inp = document.createElement('input');
-        inp.placeholder = `Player ${i+1}`;
-        inp.value = state.players[i]?.name || '';
-        inp.addEventListener('input', validateSetup);
-        wrap.appendChild(inp);
-        nameFieldsEl.appendChild(wrap);
-      }
-    }
-
-    function validateSetup() {
-      const inputs = nameFieldsEl.querySelectorAll('input');
-      state.players = Array.from(inputs).map(inp => ({ name: inp.value.trim(), role: null, alive: true, revealed: false }));
-      state.roles.mafia = Math.max(1, parseInt(roleMafiaInp.value) || 1);
-      state.roles.doctor = $('hasDoctor').checked ? 1 : 0;
-      state.roles.cop = $('hasCop').checked ? 1 : 0;
-
-      const totalSpecial = state.roles.mafia + state.roles.doctor + state.roles.cop;
-      setText('setupInfo', `special ${totalSpecial} / ${playerCount} (citizens auto)`);
-      let warnMsg = '';
-      if (totalSpecial > playerCount) warnMsg = '❌ too many special roles';
-      else if (state.players.some(p => !p.name)) warnMsg = '✎ enter all names';
-      $('roleWarning').textContent = warnMsg;
-      $('startGame').disabled = !!warnMsg;
-    }
-
-    $('incPlayers').onclick = () => { playerCount = Math.min(20, playerCount+1); playerCountEl.textContent = playerCount; renderNameFields(); validateSetup(); };
-    $('decPlayers').onclick = () => { playerCount = Math.max(3, playerCount-1); playerCountEl.textContent = playerCount; renderNameFields(); validateSetup(); };
-    roleMafiaInp.addEventListener('input', validateSetup);
-    $('hasDoctor').addEventListener('change', validateSetup);
-    $('hasCop').addEventListener('change', validateSetup);
-    renderNameFields(); validateSetup();
-    addClickSounds();
-
-    // ---------- start ----------
-    $('startGame').onclick = () => {
-      state.players = state.players.slice(0, playerCount);
-      let pool = [];
-      pool.push(...Array(state.roles.mafia).fill('Mafia'));
-      if (state.roles.doctor) pool.push('Doctor');
-      if (state.roles.cop) pool.push('Cop');
-      while (pool.length < playerCount) pool.push('Citizen');
-      shuffle(pool);
-      state.players.forEach((p,i) => { p.role = pool[i]; p.alive = true; });
-      state.round = 1; state.history = []; state.phase = 'reveal';
-      toRevealPhase();
-    };
-    function shuffle(arr) { for (let i=arr.length-1;i>0;i--) { const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-
-    // ---------- reveal ----------
-    let revealIndex = 0;
-    function toRevealPhase() {
-      state.phase = 'reveal';
-      switchSection('reveal');
-      revealIndex = 0;
-      setText('revealPlayer', state.players[0].name);
-      hide('roleText'); hide('btnNextReveal'); hide('btnContinueGame'); show('btnRevealRole');
-    }
-
-    $('btnRevealRole').onclick = () => {
-      const p = state.players[revealIndex];
-      $('roleText').textContent = `⚔️ ${p.role.toUpperCase()} ⚔️`;
-      $('roleText').classList.remove('hidden');
-      hide('btnRevealRole'); show('btnNextReveal');
-    };
-    $('btnNextReveal').onclick = () => {
-      revealIndex++;
-      if (revealIndex >= state.players.length) {
-        hide('btnNextReveal'); show('btnContinueGame');
-        setText('revealPlayer', 'ALL ROLES REVEALED');
-        hide('roleText');
-      } else {
-        setText('revealPlayer', state.players[revealIndex].name);
-        hide('roleText'); show('btnRevealRole'); hide('btnNextReveal');
-      }
-    };
-    $('btnContinueGame').onclick = () => { state.phase = 'night'; state.nightSelections = { mafia: null, doctor: null, cop: null }; toNightRole('mafia'); };
-
-    // ---------- night flow with SAME SPEECH for alive/dead ----------
-    let currentNightRole = 'mafia', selectedPlayerIndex = null;
-
-    async function toNightRole(role) {
-      currentNightRole = role;
-
-      // Check if role exists in game (not if alive!)
-      const roleExists = (role === 'mafia' && state.roles.mafia > 0) ||
-                        (role === 'doctor' && state.roles.doctor > 0) ||
-                        (role === 'cop' && state.roles.cop > 0);
-
-      // Skip if role doesn't exist in game setup
-      if (!roleExists) {
-        if (role === 'mafia') return toNightRole('doctor');
-        if (role === 'doctor') return toNightRole('cop');
-        if (role === 'cop') {
-          await blackout(600);
-          await nightResolve();
-          return;
-        }
-      }
-
-      // Check if any player with this role is alive (for action purposes)
-      const actorAlive = state.players.some(p => p.alive && 
-        ((role === 'mafia' && p.role === 'Mafia') || 
-         (role === 'doctor' && p.role === 'Doctor') || 
-         (role === 'cop' && p.role === 'Cop')));
-
-      // Reset selected player index for new role
-      selectedPlayerIndex = null;
-      
-      // build night UI
-      $('nightPlayers').innerHTML = '';
-      $('nightPlayers').style.visibility = 'visible';
-
-      // SPEECH IS ALWAYS THE SAME regardless of alive/dead!
-      if (role === 'mafia') {
-        setText('wakeTitle', 'NIGHT');
-        setText('wakeText', 'CLOSE YOUR EYES…');
-        switchSection('wake');
-        await narrate('Night falls. Everyone close your eyes.', 1200);
-        await narrate('Mafia, wake up and choose.', 900);
-        
-        switchSection('night');
-        setText('nightTitle', 'MAFIA · EXECUTION');
-        setText('nightSub', actorAlive ? 'select target' : 'waiting for mafia...');
-        renderNightPlayers(role, actorAlive);
-      } 
-      else if (role === 'doctor') {
-        switchSection('night');
-        setText('nightTitle', 'DOCTOR · HEAL');
-        setText('nightSub', actorAlive ? 'choose a player to heal' : 'waiting for doctor...');
-        renderNightPlayers(role, actorAlive);
-        
-        // ALWAYS speak doctor wake up, even if dead!
-        await narrate('Doctor, wake up and choose someone to heal.', 900);
-      } 
-      else if (role === 'cop') {
-        switchSection('night');
-        setText('nightTitle', 'COP · INVESTIGATION');
-        setText('nightSub', actorAlive ? 'cannot investigate yourself' : 'waiting for cop...');
-        renderNightPlayers(role, actorAlive);
-        
-        // ALWAYS speak cop wake up, even if dead!
-        await narrate('Cop, wake up and investigate.', 900);
-      }
-
-      $('btnConfirmNight').disabled = true;
-
-      // If actor is dead, auto-confirm after delay (but speech already happened!)
-      if (!actorAlive) {
-        if (window._nightTimer) clearTimeout(window._nightTimer);
-        window._nightTimer = setTimeout(() => { 
-          $('btnConfirmNight').disabled = false; 
-          $('btnConfirmNight').click(); 
-        }, 5000); // 5 second delay for dead roles
-      }
-    }
-
-    function renderNightPlayers(role, actorAlive) {
-      const list = $('nightPlayers'); list.innerHTML = '';
-      const alive = state.players.filter(p=>p.alive);
-      
-      // Find the actor index for this role
-      let actorIdx = -1;
-      if (role === 'mafia') {
-        actorIdx = state.players.findIndex(p => p.alive && p.role === 'Mafia');
-      } else if (role === 'doctor') {
-        actorIdx = state.players.findIndex(p => p.alive && p.role === 'Doctor');
-      } else if (role === 'cop') {
-        actorIdx = state.players.findIndex(p => p.alive && p.role === 'Cop');
-      }
-
-      alive.forEach(p => {
-        const idx = state.players.indexOf(p);
-        const btn = document.createElement('button');
-        btn.className = 'player-btn';
-        
-        // Don't show roles during night phase!
-        btn.innerHTML = `<strong>${p.name}</strong><br><span class="muted">👤 alive</span>`;
-        
-        // If actor is dead, disable all buttons
-        if (!actorAlive) {
-          btn.disabled = true;
-        }
-        
-        // Disable self-selection for cop only (if cop is alive)
-        if (role === 'cop' && actorAlive && actorIdx !== -1 && idx === actorIdx) {
-          btn.disabled = true;
-        }
-        
-        btn.addEventListener('click', () => {
-          if (!actorAlive) return; // Can't select if actor is dead
-          
-          list.querySelectorAll('.player-btn').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedPlayerIndex = idx;
-          $('btnConfirmNight').disabled = false;
-        });
-        list.appendChild(btn);
-      });
-    }
-
-    $('btnConfirmNight').onclick = async () => {
-      if (window._nightTimer) clearTimeout(window._nightTimer);
-      
-      const chosen = selectedPlayerIndex;
-      
-      // Check if actor is alive before allowing selection
-      const actorAlive = state.players.some(p => p.alive && 
-        ((currentNightRole === 'mafia' && p.role === 'Mafia') || 
-         (currentNightRole === 'doctor' && p.role === 'Doctor') || 
-         (currentNightRole === 'cop' && p.role === 'Cop')));
-
-      // Save the selection based on role (only if actor is alive)
-      if (chosen != null && actorAlive) {
-        if (currentNightRole === 'mafia') {
-          state.nightSelections.mafia = chosen;
-        }
-        if (currentNightRole === 'doctor') {
-          state.nightSelections.doctor = chosen;
-        }
-        if (currentNightRole === 'cop') {
-          state.nightSelections.cop = chosen;
-        }
-      }
-
-      // hide interface, blackout
-      $('nightPlayers').style.visibility = 'hidden';
-      $('btnConfirmNight').disabled = true;
-
-      // SPEECH RESPONSES - ALWAYS THE SAME regardless of alive/dead!
-      if (currentNightRole === 'mafia') { 
-        await narrate('Mafia have chosen.', 800); 
-        await narrate('Mafia, go back to sleep.', 800);
-      }
-      else if (currentNightRole === 'doctor') { 
-        await narrate('Doctor has made a choice.', 800); 
-        await narrate('Doctor, go back to sleep.', 800);
-      }
-
-      await blackout(800);
-
-      // Move to next role
-      if (currentNightRole === 'mafia') { 
-        return toNightRole('doctor');
-      }
-      else if (currentNightRole === 'doctor') { 
-        return toNightRole('cop');
-      }
-      else if (currentNightRole === 'cop') {
-        // Only show cop overlay if cop was alive and made a selection
-        const copSel = state.nightSelections.cop;
-        const copAlive = state.players.some(p => p.alive && p.role === 'Cop');
-        
-        if (copSel != null && state.players[copSel] && copAlive) {
-          await blackout(400);
-          const target = state.players[copSel];
-          showCopOverlay(`${target.name} is ${target.role==='Mafia' ? '☠️ MAFIA' : '✅ innocent'}`);
-          await sleep(2000); hideCopOverlay();
-        }
-        
-        // ALWAYS speak cop vision and sleep, even if dead!
-        await narrate('Cop has received a vision.', 800);
-        await narrate('Cop, go back to sleep.', 800);
-        
-        await blackout(800);
-        await nightResolve(); 
-        return;
-      }
-    };
-
-    async function nightResolve() {
-      const killIdx = state.nightSelections.mafia;
-      const healIdx = state.nightSelections.doctor;
-      
-      let died = null, saved = null;
-      if (killIdx != null) {
-        if (healIdx != null && healIdx === killIdx) {
-          saved = state.players[healIdx].name;
-        } else { 
-          state.players[killIdx].alive = false; 
-          died = state.players[killIdx].name;
-        }
-      }
-      
-      if (checkWin()) { switchSection('wake'); await narrate('Game over.', 1500); toGameOver(); return; }
-      
-      state.history.push({ round: state.round, nightKill: died, healed: saved, votedOut: null });
-      state.phase = 'morning';
-      
-      if (checkWin()) { toGameOver(); return; }
-      
-      setText('wakeTitle', 'MORNING');
-      setText('wakeText', 'EVERYONE WAKE UP');
-      switchSection('wake');
-      await narrate('Everyone wakes up.', 1800);
-      toMorning(died, saved);
-    }
-
-    function toMorning(died, saved) {
-      switchSection('morning');
-      let summary = died ? `💀 ${died} was killed.` : '🌫️ No one died.';
-      if (saved) summary += ` ✨ ${saved} was healed.`;
-      setText('morningSummary', summary);
-    }
-
-    $('btnStartDiscussion').onclick = () => toDiscussion();
-
-    // discussion timer
-    let timerId;
-    function toDiscussion() {
-      state.phase = 'discussion';
-      switchSection('discussion');
-      let secs = state.discussionSeconds;
-      updateTimer(secs);
-      clearInterval(timerId);
-      timerId = setInterval(() => { secs--; if (secs<=0) { clearInterval(timerId); toVoting(); } else updateTimer(secs); }, 1000);
-      $('btnReduce10').onclick = () => { secs = Math.max(0, secs-10); updateTimer(secs); };
-      $('btnSkipToVoting').onclick = () => { clearInterval(timerId); toVoting(); };
-    }
-    function updateTimer(s) { let m = Math.floor(s/60).toString().padStart(2,'0'), sec = (s%60).toString().padStart(2,'0'); $('timer').textContent = `${m}:${sec}`; }
-
-    // voting
-    let voteOrder = [], voteIndex = 0, votes = {}, voteLocked = false;
-    function toVoting() {
-      state.phase = 'voting';
-      switchSection('voting');
-      voteLocked = false;
-      voteOrder = state.players.map((p,i)=>i).filter(i=>state.players[i].alive);
-      voteIndex = 0; votes = {}; renderVotingTurn();
-    }
-    async function renderVotingTurn() {
-      if (voteIndex >= voteOrder.length) {
-        if (voteLocked) return; voteLocked = true;
-        const tally = Object.entries(votes).map(([idx,c])=>({idx:parseInt(idx),count:c}));
-        if (tally.length===0) {
-          showVoteOverlay('NO VOTES · nobody eliminated');
-          await narrate('No votes.',1200); hideVoteOverlay();
-          state.history.push({round:state.round, nightKill:null, healed:null, votedOut:null});
-          toNightOrEnd(null); return;
-        }
-        const max = Math.max(...tally.map(t=>t.count));
-        const top = tally.filter(t=>t.count===max);
-        if (top.length>1) {
-          showVoteOverlay('⚖️ TIE · NO ELIMINATION');
-          await narrate('Tie. No one eliminated.',1500); hideVoteOverlay();
-          state.history.push({round:state.round, nightKill:null, healed:null, votedOut:null});
-          toNightOrEnd(null); return;
-        }
-        const elim = state.players[top[0].idx];
-        elim.alive = false;
-        showVoteOverlay(`🗳️ ${elim.name} ELIMINATED`);
-        await narrate(`${elim.name} was eliminated.`,1600); hideVoteOverlay();
-        state.history.push({round:state.round, nightKill:null, healed:null, votedOut:elim.name});
-        toNightOrEnd(elim);
-        return;
-      }
-      const voterIdx = voteOrder[voteIndex];
-      const voter = state.players[voterIdx];
-      setText('voterTurn', `📱 ${voter.name}, cast your vote`);
-      $('voteList').innerHTML = '';
-      state.players.forEach((p,idx) => {
-        if (!p.alive) return;
-        const btn = document.createElement('button');
-        btn.className = 'player-btn'; 
-        btn.innerHTML = `<strong>${p.name}</strong>`;
-        btn.onclick = async () => {
-          if (voteLocked) return; voteLocked = true;
-          votes[idx] = (votes[idx]||0)+1;
-          voteIndex++;
-          await blackout(500);
-          voteLocked = false;
-          renderVotingTurn();
-        };
-        $('voteList').appendChild(btn);
-      });
-    }
-
-    function toNightOrEnd(elim) { 
-      if (checkWin()) toGameOver(); 
-      else { 
-        state.round++; 
-        state.nightSelections = { mafia:null, doctor:null, cop:null }; 
-        toNightRole('mafia'); 
-      } 
-    }
-
-    // win condition
-    function checkWin() {
-      const alive = state.players.filter(p=>p.alive);
-      const mafiaAlive = alive.filter(p=>p.role==='Mafia').length;
-      const town = alive.length - mafiaAlive;
-      if (mafiaAlive === 0) { state.winner = 'CITIZENS'; return true; }
-      if (mafiaAlive >= town) { state.winner = 'MAFIA'; return true; }
-      return false;
-    }
-
-    function toGameOver() {
-      state.phase = 'gameover';
-      switchSection('gameover');
-      setText('winner', `${state.winner} WIN`);
-      const results = $('results'); results.innerHTML = '';
-      state.players.forEach(p => {
-        const row = document.createElement('div'); row.className = 'result-row';
-        row.innerHTML = `<div>${p.name}</div><div><span class="chip">${p.role}</span></div><div class="${p.alive?'alive':'dead'}">${p.alive?'Alive':'Dead'}</div>`;
-        results.appendChild(row);
-      });
-      const historyDiv = $('history'); historyDiv.innerHTML = '';
-      state.history.forEach(h => {
-        const line = document.createElement('div'); line.className = 'subtitle';
-        line.innerHTML = `🌙 Round ${h.round} · kill: ${h.nightKill||'—'} heal: ${h.healed||'—'} vote: ${h.votedOut||'—'}`;
-        historyDiv.appendChild(line);
-      });
-    }
-
-    // play again / home
-    $('btnPlayAgain').onclick = () => { playAgain(); };
-    function playAgain() {
-      const names = state.players.map(p=>p.name);
-      state.players = names.map(n=>({ name: n, role: null, alive: true }));
-      let pool = []; pool.push(...Array(state.roles.mafia).fill('Mafia')); if(state.roles.doctor) pool.push('Doctor'); if(state.roles.cop) pool.push('Cop');
-      while(pool.length < playerCount) pool.push('Citizen'); shuffle(pool);
-      state.players.forEach((p,i)=>p.role=pool[i]);
-      state.round = 1; state.history = []; state.phase = 'reveal'; toRevealPhase();
-    }
-    $('btnReturnHome').onclick = () => { window.location.reload(); };
-
-    function switchSection(id) {
-      ['setup','reveal','night','wake','morning','discussion','voting','gameover'].forEach(s => { if(s===id) show(s); else hide(s); });
-      $('blackout').style.display = 'none';
-    }
-  })();
-</script>
-  <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
+  navigator.serviceWorker.register("service-worker.js").catch(() => {});
 }
-  </script>
+</script>
 </body>
 </html>
-
