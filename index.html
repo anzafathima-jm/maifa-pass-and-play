@@ -172,7 +172,25 @@
 <script src="script.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js").catch(() => {});
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.register("service-worker.js");
+
+      // Check for updates every time the app opens
+      registration.update();
+
+      // Reload automatically when a new service worker takes control
+      let refreshing = false;
+
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+    } catch (err) {
+      console.error("Service Worker registration failed:", err);
+    }
+  });
 }
 </script>
 </body>
