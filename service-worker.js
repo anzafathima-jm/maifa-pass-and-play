@@ -1,4 +1,4 @@
-const CACHE_NAME = "mafia-cache-v3";
+const CACHE_NAME = "mafia-cache-v4";
 
 const urlsToCache = [
   "./",
